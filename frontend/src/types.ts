@@ -1,4 +1,7 @@
 export type Drug = {
+  manufacturer?: string;
+  dosage: string;
+  genus: string;
   images?: any[];
   type?: string;
   id: number;
