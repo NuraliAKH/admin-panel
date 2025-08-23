@@ -17,6 +17,8 @@ type FormValues = {
 };
 
 export default function Drugs() {
+  const API_URL = import.meta.env.VITE_API_URL ?? "https://humopharmgroup.uz/api";
+
   const [data, setData] = useState<Drug[]>([]);
   const [loading, setLoading] = useState(false);
   const [open, setOpen] = useState(false);
@@ -140,7 +142,7 @@ export default function Drugs() {
         render: (images: string[]) =>
           images?.length
             ? images.map((img, i) => (
-                <img key={i} src={`http://localhost:3000${img}`} alt="drug" style={{ width: 50, marginRight: 5 }} />
+                <img key={i} src={`${API_URL}${img}`} alt="drug" style={{ width: 50, marginRight: 5 }} />
               ))
             : null,
       },
