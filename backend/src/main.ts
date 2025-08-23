@@ -7,7 +7,7 @@ import { cwd } from "process";
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
-
+  app.setGlobalPrefix("api");
   app.enableCors({
     origin: "*",
     credentials: true,
