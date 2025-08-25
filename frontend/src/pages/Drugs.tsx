@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload } from "antd";
+import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload, Card } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import api from "../api";
@@ -169,19 +169,20 @@ export default function Drugs() {
 
   return (
     <div>
-      <Space style={{ marginBottom: 16 }}>
+      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", paddingBottom: 15 }}>
         <Input
           placeholder="Поиск по имени"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ width: 200 }}
+          style={{ width: 200, flex: "1 1 auto", minWidth: 180 }}
         />
         <Button type="primary" onClick={openCreate}>
           Добавить препарат
         </Button>
         <Button onClick={fetchData}>Обновить</Button>
-      </Space>
-      <Table rowKey="id" loading={loading} dataSource={filteredData} columns={columns as any} />
+      </div>
+
+      <Table rowKey="id" scroll={{ x: true }} loading={loading} dataSource={filteredData} columns={columns as any} />
 
       <Modal
         open={open}
