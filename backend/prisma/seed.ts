@@ -1,25 +1,25 @@
-import { PrismaClient, Role } from '@prisma/client';
-import * as bcrypt from 'bcrypt';
+import { PrismaClient, Role } from "@prisma/client";
+import * as bcrypt from "bcrypt";
 
 const prisma = new PrismaClient();
 
 async function main() {
-  const password = await bcrypt.hash('admin123', 10);
+  const password = await bcrypt.hash("boburjon_123", 10);
   const admin = await prisma.user.upsert({
-    where: { email: 'admin@admin.com' },
+    where: { email: "boburjon@mail.com" },
     update: {},
     create: {
-      email: 'admin@admin.com',
+      email: "boburjon@mail.com",
       password,
       role: Role.ADMIN,
-      name: 'Admin'
+      name: "Admin",
     },
   });
-  console.log('Seeded admin:', admin.email);
+  console.log("Seeded admin:", admin.email);
 }
 
 main()
-  .catch((e) => {
+  .catch(e => {
     console.error(e);
     process.exit(1);
   })
