@@ -10,25 +10,33 @@ export default function Login() {
     try {
       const { data } = await api.post("/auth/login", values);
       localStorage.setItem("token", data.access_token);
-      message.success("Успешный вход");
+      message.success("Muvaffaqiyatli kirdingiz");
       navigate("/drugs");
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Ошибка входа");
+      message.error(e?.response?.data?.message || "Kirishda xatolik");
     }
   };
 
   return (
     <div style={{ display: "grid", placeItems: "center", height: "100vh" }}>
-      <Card title="Вход в админку" style={{ width: 360 }}>
+      <Card title="Admin panelga kirish" style={{ width: 360 }}>
         <Form layout="vertical" onFinish={onFinish}>
-          <Form.Item name="email" label="Email" rules={[{ required: true, type: "email" }]}>
+          <Form.Item
+            name="email"
+            label="Email"
+            rules={[{ required: true, type: "email", message: "Emailni kiriting" }]}
+          >
             <Input placeholder="admin@admin.com" />
           </Form.Item>
-          <Form.Item name="password" label="Пароль" rules={[{ required: true, min: 6 }]}>
+          <Form.Item
+            name="password"
+            label="Parol"
+            rules={[{ required: true, min: 6, message: "Parol kamida 6 ta belgi bo‘lishi kerak" }]}
+          >
             <Input.Password placeholder="******" />
           </Form.Item>
           <Button type="primary" htmlType="submit" block>
-            Войти
+            Kirish
           </Button>
         </Form>
       </Card>

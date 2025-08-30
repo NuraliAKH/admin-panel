@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload, Card } from "antd";
+import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload } from "antd";
 import { UploadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import api from "../api";
@@ -25,7 +25,7 @@ export default function Drugs() {
   const [editing, setEditing] = useState<Drug | null>(null);
   const [form] = Form.useForm<FormValues>();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
-  const [search, setSearch] = useState(""); // ← новое состояние для поиска
+  const [search, setSearch] = useState(""); // qidiruv uchun
 
   const fetchData = async () => {
     setLoading(true);
@@ -34,7 +34,7 @@ export default function Drugs() {
       const list = Array.isArray(res.data) ? res.data : res.data?.products || [];
       setData(list);
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Ошибка загрузки");
+      message.error(e?.response?.data?.message || "Yuklashda xatolik yuz berdi");
     } finally {
       setLoading(false);
     }
@@ -96,31 +96,31 @@ export default function Drugs() {
         await api.put(`/drugs/${editing.id}`, formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        message.success("Обновлено");
+        message.success("Yangilandi");
       } else {
         await api.post("/drugs", formData, {
           headers: { "Content-Type": "multipart/form-data" },
         });
-        message.success("Создано");
+        message.success("Yaratildi");
       }
       setOpen(false);
       fetchData();
     } catch (e: any) {
-      message.error(e?.response?.data?.message || "Ошибка сохранения (нужна роль ADMIN)");
+      message.error(e?.response?.data?.message || "Saqlashda xatolik (ADMIN roli kerak)");
     }
   };
 
   const handleDelete = async (record: Drug) => {
     Modal.confirm({
-      title: "Удалить препарат?",
-      content: `Вы уверены, что хотите удалить "${record.name}"?`,
+      title: "Dori vositasini o‘chirish?",
+      content: `"${record.name}" dori vositasini o‘chirishni xohlaysizmi?`,
       onOk: async () => {
         try {
           await api.delete(`/drugs/${record.id}`);
-          message.success("Удалено");
+          message.success("O‘chirildi");
           fetchData();
         } catch (e: any) {
-          message.error(e?.response?.data?.message || "Ошибка удаления (нужна роль ADMIN)");
+          message.error(e?.response?.data?.message || "O‘chirishda xatolik (ADMIN roli kerak)");
         }
       },
     });
@@ -129,15 +129,15 @@ export default function Drugs() {
   const columns = useMemo(
     () => [
       { title: "ID", dataIndex: "id", width: 80 },
-      { title: "Название", dataIndex: "name" },
-      { title: "Описание", dataIndex: "description" },
-      { title: "Тип", dataIndex: "type" },
-      { title: "Род (genus)", dataIndex: "genus" },
-      { title: "Дозировка", dataIndex: "dosage" },
-      { title: "Производитель", dataIndex: "manufacturer" },
-      { title: "Цена", dataIndex: "price", render: (v: any) => v ?? "" },
+      { title: "Nomi", dataIndex: "name" },
+      { title: "Tavsif", dataIndex: "description" },
+      { title: "Turi", dataIndex: "type" },
+      { title: "Rodi (genus)", dataIndex: "genus" },
+      { title: "Dozalash", dataIndex: "dosage" },
+      { title: "Ishlab chiqaruvchi", dataIndex: "manufacturer" },
+      { title: "Narxi", dataIndex: "price", render: (v: any) => v ?? "" },
       {
-        title: "Изображения",
+        title: "Rasmlar",
         dataIndex: "images",
         render: (images: string[]) =>
           images?.length
@@ -147,12 +147,12 @@ export default function Drugs() {
             : null,
       },
       {
-        title: "Действия",
+        title: "Amallar",
         render: (_: any, record: Drug) => (
           <Space>
-            <Button onClick={() => openEdit(record)}>Редактировать</Button>
+            <Button onClick={() => openEdit(record)}>Tahrirlash</Button>
             <Button danger onClick={() => handleDelete(record)}>
-              Удалить
+              O‘chirish
             </Button>
           </Space>
         ),
@@ -162,7 +162,6 @@ export default function Drugs() {
     []
   );
 
-  // Фильтрация по имени (без изменений в API)
   const filteredData = useMemo(() => {
     return data.filter(item => item.name?.toLowerCase().includes(search.toLowerCase()));
   }, [data, search]);
@@ -171,54 +170,54 @@ export default function Drugs() {
     <div>
       <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", paddingBottom: 15 }}>
         <Input
-          placeholder="Поиск по имени"
+          placeholder="Nomi bo‘yicha qidirish"
           value={search}
           onChange={e => setSearch(e.target.value)}
           style={{ width: 200, flex: "1 1 auto", minWidth: 180 }}
         />
         <Button type="primary" onClick={openCreate}>
-          Добавить препарат
+          Dori qo‘shish
         </Button>
-        <Button onClick={fetchData}>Обновить</Button>
+        <Button onClick={fetchData}>Yangilash</Button>
       </div>
 
       <Table rowKey="id" scroll={{ x: true }} loading={loading} dataSource={filteredData} columns={columns as any} />
 
       <Modal
         open={open}
-        title={editing ? "Редактировать препарат" : "Создать препарат"}
+        title={editing ? "Dorini tahrirlash" : "Dori qo‘shish"}
         onCancel={() => setOpen(false)}
         onOk={handleSubmit}
-        okText="Сохранить"
+        okText="Saqlash"
       >
         <Form form={form} layout="vertical">
-          <Form.Item name="name" label="Название" rules={[{ required: true }]}>
+          <Form.Item name="name" label="Nomi" rules={[{ required: true, message: "Dori nomini kiriting" }]}>
             <Input />
           </Form.Item>
-          <Form.Item name="description" label="Описание">
+          <Form.Item name="description" label="Tavsif">
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="price" label="Цена">
+          <Form.Item name="price" label="Narxi">
             <InputNumber style={{ width: "100%" }} min={0} step={0.01} />
           </Form.Item>
-          <Form.Item name="type" label="Тип">
-            <Select placeholder="Выберите тип">
-              <Select.Option value="tablet">Таблетки</Select.Option>
-              <Select.Option value="capsule">Капсулы</Select.Option>
-              <Select.Option value="syrup">Сироп</Select.Option>
-              <Select.Option value="other">Другое</Select.Option>
+          <Form.Item name="type" label="Turi">
+            <Select placeholder="Dori turini tanlang">
+              <Select.Option value="tablet">Tabletka</Select.Option>
+              <Select.Option value="capsule">Kapsula</Select.Option>
+              <Select.Option value="syrup">Sirop</Select.Option>
+              <Select.Option value="other">Boshqa</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="genus" label="Род (genus)">
+          <Form.Item name="genus" label="Rodi (genus)">
             <Input />
           </Form.Item>
-          <Form.Item name="dosage" label="Дозировка">
+          <Form.Item name="dosage" label="Dozalash">
             <Input />
           </Form.Item>
-          <Form.Item name="manufacturer" label="Производитель">
+          <Form.Item name="manufacturer" label="Ishlab chiqaruvchi">
             <Input />
           </Form.Item>
-          <Form.Item label="Изображения">
+          <Form.Item label="Rasmlar">
             <Upload
               fileList={fileList}
               onChange={({ fileList }) => setFileList(fileList)}
@@ -226,7 +225,7 @@ export default function Drugs() {
               multiple
               listType="picture"
             >
-              <Button icon={<UploadOutlined />}>Загрузить</Button>
+              <Button icon={<UploadOutlined />}>Yuklash</Button>
             </Upload>
           </Form.Item>
         </Form>
