@@ -225,7 +225,7 @@ export default function Drugs() {
               beforeUpload={() => false}
               multiple
               listType="picture"
-              accept="image/*"
+              accept="image/png, image/jpg"
             >
               <Button icon={<UploadOutlined />}>Yuklash</Button>
             </Upload>
