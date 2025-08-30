@@ -86,8 +86,9 @@ export default function Drugs() {
     if (values.manufacturer) formData.append("manufacturer", values.manufacturer);
 
     fileList.forEach(file => {
-      if (file.originFileObj) {
-        formData.append("images", file.originFileObj);
+      const realFile = file.originFileObj as File;
+      if (realFile) {
+        formData.append("images", realFile, realFile.name);
       }
     });
 
@@ -224,6 +225,7 @@ export default function Drugs() {
               beforeUpload={() => false}
               multiple
               listType="picture"
+              accept="image/*"
             >
               <Button icon={<UploadOutlined />}>Yuklash</Button>
             </Upload>
