@@ -1,6 +1,6 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { Table, Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload } from "antd";
-import { UploadOutlined } from "@ant-design/icons";
+import { useEffect, useMemo, useState } from "react";
+import { Button, Modal, Form, Input, InputNumber, Space, message, Select, Upload, Card } from "antd";
+import { DeleteOutlined, PlusCircleOutlined, UploadOutlined } from "@ant-design/icons";
 import type { UploadFile } from "antd/es/upload/interface";
 import api from "../api";
 import { Drug } from "../types";
@@ -17,7 +17,7 @@ type FormValues = {
 };
 
 export default function Drugs() {
-  const API_URL = import.meta.env.VITE_API_URL ?? "https://humopharmgroup.uz/api";
+  const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
   const [data, setData] = useState<Drug[]>([]);
   const [loading, setLoading] = useState(false);
@@ -26,6 +26,14 @@ export default function Drugs() {
   const [form] = Form.useForm<FormValues>();
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [search, setSearch] = useState(""); // qidiruv uchun
+  const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
+    }, 60000);
+    return () => clearInterval(interval);
+  }, []);
 
   const fetchData = async () => {
     setLoading(true);
@@ -167,22 +175,91 @@ export default function Drugs() {
     return data.filter(item => item.name?.toLowerCase().includes(search.toLowerCase()));
   }, [data, search]);
 
+  const groupedData = useMemo(() => {
+    const filtered = filteredData.filter(item => item.name?.toLowerCase().includes(search.toLowerCase()));
+    return filtered.reduce((acc: Record<string, Drug[]>, item) => {
+      const category = item.type || "Boshqa";
+      if (!acc[category]) acc[category] = [];
+      acc[category].push(item);
+      return acc;
+    }, {});
+  }, [data, search]);
+
   return (
     <div>
-      <div style={{ display: "flex", flexWrap: "wrap", gap: 12, alignItems: "center", paddingBottom: 15 }}>
+      <div
+        style={{
+          background: "#fff",
+          display: "flex",
+          flexWrap: "wrap",
+          gap: 12,
+          alignItems: "center",
+          justifyContent: "space-between",
+          padding: 15,
+          borderRadius: 15,
+          marginBottom: 15,
+        }}
+      >
         <Input
-          placeholder="Nomi bo‘yicha qidirish"
+          placeholder="Qidiruv"
           value={search}
           onChange={e => setSearch(e.target.value)}
-          style={{ width: 200, flex: "1 1 auto", minWidth: 180 }}
+          style={{
+            maxWidth: 400,
+            height: 45,
+            flex: "1 1 auto",
+            minWidth: 180,
+            borderRadius: 15,
+            background: "#EAEBEC",
+          }}
         />
-        <Button type="primary" onClick={openCreate}>
-          Dori qo‘shish
-        </Button>
-        <Button onClick={fetchData}>Yangilash</Button>
+        <div style={{ fontWeight: 500, padding: "14px 30px", borderRadius: 15, height: 45, background: "#EAEBEC" }}>
+          {time}
+        </div>
       </div>
 
-      <Table rowKey="id" scroll={{ x: true }} loading={loading} dataSource={filteredData} columns={columns as any} />
+      {Object.keys(groupedData).length === 0 && (
+        <p style={{ textAlign: "center", color: "red" }}>Hech qanday dori topilmadi</p>
+      )}
+      {Object.entries(groupedData).map(([category, items]) => (
+        <Card
+          key={category}
+          title={<span style={{ fontSize: 20 }}>{category}</span>}
+          bodyStyle={{ padding: 0 }}
+          headStyle={{ padding: 0 }}
+          style={{ marginBottom: 20, background: "#f5f5f5", border: "none", padding: 0 }}
+          extra={
+            <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
+              <PlusCircleOutlined /> Yangi dori yaratish
+            </Button>
+          }
+        >
+          {items.map(drug => (
+            <div
+              key={drug.id}
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                padding: "10px 15px",
+                marginBottom: 10,
+                borderRadius: 10,
+                background: "#fff",
+              }}
+            >
+              <span>#{drug.name}</span>
+              <div style={{ display: "flex", gap: 8 }}>
+                <Button onClick={() => openEdit(drug)} style={{ background: "green", color: "#fff", border: "none" }}>
+                  qo‘shish
+                </Button>
+                <Button danger onClick={() => handleDelete(drug)}>
+                  <DeleteOutlined />
+                </Button>
+              </div>
+            </div>
+          ))}
+        </Card>
+      ))}
 
       <Modal
         open={open}
@@ -203,19 +280,20 @@ export default function Drugs() {
           </Form.Item>
           <Form.Item name="type" label="Turi">
             <Select placeholder="Dori turini tanlang">
-              <Select.Option value="tablet">Tabletka</Select.Option>
-              <Select.Option value="capsule">Kapsula</Select.Option>
-              <Select.Option value="syrup">Sirop</Select.Option>
-              <Select.Option value="other">Boshqa</Select.Option>
+              <Select.Option value="Tabletkalar">Tabletka</Select.Option>
+              <Select.Option value="Kapsulalar">Kapsula</Select.Option>
+              <Select.Option value="Siroplar">Sirop</Select.Option>
+              <Select.Option value="Svichalar">Svicha</Select.Option>
+              <Select.Option value="Boshqalar">Boshqa</Select.Option>
             </Select>
           </Form.Item>
-          <Form.Item name="genus" label="Rodi (genus)">
+          <Form.Item name="genus" label="Tarkibi">
             <Input />
           </Form.Item>
-          <Form.Item name="dosage" label="Dozalash">
+          <Form.Item name="dosage" label="Qo`llanishi">
             <Input />
           </Form.Item>
-          <Form.Item name="manufacturer" label="Ishlab chiqaruvchi">
+          <Form.Item name="manufacturer" label="Nojo‘ ta’siri">
             <Input />
           </Form.Item>
           <Form.Item label="Rasmlar">
@@ -224,8 +302,6 @@ export default function Drugs() {
               onChange={({ fileList }) => setFileList(fileList)}
               beforeUpload={() => false}
               multiple
-              listType="picture"
-              accept="image/png, image/jpg"
             >
               <Button icon={<UploadOutlined />}>Yuklash</Button>
             </Upload>

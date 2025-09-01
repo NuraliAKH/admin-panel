@@ -1,14 +1,14 @@
-import React from "react";
-import { Layout, Menu, Button, theme } from "antd";
+import { Layout, Menu, Button } from "antd";
+import { LogoutOutlined } from "@ant-design/icons";
 import { Link, Outlet, useLocation, useNavigate } from "react-router-dom";
+import "./layout.css";
 
 const { Header, Content, Sider } = Layout;
 
 export default function App() {
-  const { token } = theme.useToken();
   const location = useLocation();
   const navigate = useNavigate();
-  const selectedKey = location.pathname.startsWith("/drugs") ? "drugs" : "dashboard";
+  const selectedKey = location.pathname.startsWith("/drugs") ? "dashboard" : "";
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -16,27 +16,90 @@ export default function App() {
   };
 
   return (
-    <Layout style={{ minHeight: "100vh" }}>
-      <Sider breakpoint="lg" collapsedWidth="0">
-        <div style={{ height: 64, margin: 16, color: "#fff", fontWeight: 700 }}>Admin</div>
-        <Menu theme="dark" mode="inline" selectedKeys={[selectedKey]}>
-          <Menu.Item key="drugs">
-            <Link to="/drugs">Dorilar</Link>
-          </Menu.Item>
-        </Menu>
-      </Sider>
-      <Layout>
-        <Header
-          style={{ background: token.colorBgContainer, display: "flex", justifyContent: "flex-end", margin: "16px" }}
-        >
-          <Button onClick={logout}>Chiqish</Button>
-        </Header>
-        <Content style={{ margin: "16px" }}>
-          <div style={{ padding: 24, background: token.colorBgContainer, minHeight: 360 }}>
+    <>
+      {/* Mobile Header tashqarida bo‘ladi */}
+      <Header className="sidebar-mobile">
+        <div className="mobile-header-content">
+          <span className="logo-text">Humo pharm</span>
+          <Button
+            onClick={logout}
+            style={{
+              backgroundColor: "#fff",
+              color: "#D93D40",
+              borderRadius: 10,
+            }}
+          >
+            Chiqish
+          </Button>
+        </div>
+      </Header>
+
+      <Layout className="layout-mobile">
+        <Content style={{ margin: "0px" }}>
+          <div style={{ padding: 24, minHeight: 360 }}>
             <Outlet />
           </div>
         </Content>
       </Layout>
-    </Layout>
+      {/* Desktop Layout */}
+      <Layout className="desktop-layout" style={{ minHeight: "100vh" }}>
+        <Sider
+          breakpoint="lg"
+          collapsedWidth="0"
+          style={{
+            backgroundColor: "#D93D40",
+            borderRadius: 20,
+            margin: "24px 0 24px 24px",
+            padding: "20px 0",
+            position: "relative",
+          }}
+        >
+          <Menu
+            mode="inline"
+            selectedKeys={[selectedKey]}
+            style={{ backgroundColor: "transparent", width: "100%", padding: 10 }}
+            items={[
+              {
+                key: "dashboard",
+                label: <Link to="/drugs">Dashboard</Link>,
+                style:
+                  selectedKey === "dashboard"
+                    ? {
+                        backgroundColor: "#fff",
+                        color: "#000",
+                        borderRadius: 15,
+                        textAlign: "center",
+                        fontSize: 16,
+                      }
+                    : {},
+              },
+            ]}
+          />
+          <Button
+            block
+            onClick={logout}
+            style={{
+              backgroundColor: "transparent",
+              color: "#fff",
+              position: "absolute",
+              bottom: 20,
+              left: 20,
+              right: 20,
+              width: "calc(100% - 40px)",
+            }}
+          >
+            <LogoutOutlined /> Chiqish
+          </Button>
+        </Sider>
+
+        <Layout>
+          <Content style={{ margin: "0px" }}>
+            <div style={{ padding: 24, minHeight: 360 }}>
+              <Outlet />
+            </div>
+          </Content>
+        </Layout>
+      </Layout>
+    </>
   );
 }

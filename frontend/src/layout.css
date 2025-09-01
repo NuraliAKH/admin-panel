@@ -1,0 +1,34 @@
+/* Desktop layout */
+.desktop-layout {
+  display: flex;
+}
+
+.sidebar-mobile {
+  display: none;
+}
+
+.layout-mobile {
+  display: none;
+}
+
+/* Mobileda Sider yashirin, Header ko‘rinadi */
+@media (max-width: 768px) {
+  .desktop-layout {
+    display: none !important;
+  }
+  .sidebar-mobile {
+    display: block !important;
+    background-color: #D93D40;
+  }
+  .mobile-header-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    color: white;
+    font-weight: 700;
+    font-size: 18px;
+  }
+  .logo-text {
+    color: white;
+  }
+}
