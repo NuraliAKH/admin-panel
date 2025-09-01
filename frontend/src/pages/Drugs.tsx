@@ -225,7 +225,13 @@ export default function Drugs() {
       </div>
 
       {Object.keys(groupedData).length === 0 && (
-        <p style={{ textAlign: "center", color: "red" }}>Hech qanday dori topilmadi</p>
+        <div>
+          {" "}
+          <p style={{ textAlign: "center", color: "red" }}>Hech qanday dori topilmadi</p>
+          <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
+            <PlusCircleOutlined /> Yangi dori yaratish
+          </Button>
+        </div>
       )}
       {Object.entries(groupedData).map(([category, items]) => {
         const isExpanded = expandedCategories[category];
