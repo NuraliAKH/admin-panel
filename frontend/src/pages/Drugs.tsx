@@ -27,14 +27,19 @@ export default function Drugs() {
   const [fileList, setFileList] = useState<UploadFile[]>([]);
   const [search, setSearch] = useState(""); // qidiruv uchun
   const [time, setTime] = useState(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
-
+  const [expandedCategories, setExpandedCategories] = useState<{ [key: string]: boolean }>({});
   useEffect(() => {
     const interval = setInterval(() => {
       setTime(new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }));
     }, 60000);
     return () => clearInterval(interval);
   }, []);
-
+  const toggleCategory = (category: string) => {
+    setExpandedCategories(prev => ({
+      ...prev,
+      [category]: !prev[category],
+    }));
+  };
   const fetchData = async () => {
     setLoading(true);
     try {
@@ -188,6 +193,7 @@ export default function Drugs() {
   return (
     <div>
       <div
+        className="toolbar"
         style={{
           background: "#fff",
           display: "flex",
@@ -221,45 +227,66 @@ export default function Drugs() {
       {Object.keys(groupedData).length === 0 && (
         <p style={{ textAlign: "center", color: "red" }}>Hech qanday dori topilmadi</p>
       )}
-      {Object.entries(groupedData).map(([category, items]) => (
-        <Card
-          key={category}
-          title={<span style={{ fontSize: 20 }}>{category}</span>}
-          bodyStyle={{ padding: 0 }}
-          headStyle={{ padding: 0 }}
-          style={{ marginBottom: 20, background: "#f5f5f5", border: "none", padding: 0 }}
-          extra={
-            <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
-              <PlusCircleOutlined /> Yangi dori yaratish
-            </Button>
-          }
-        >
-          {items.map(drug => (
-            <div
-              key={drug.id}
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                padding: "10px 15px",
-                marginBottom: 10,
-                borderRadius: 10,
-                background: "#fff",
-              }}
-            >
-              <span>#{drug.name}</span>
-              <div style={{ display: "flex", gap: 8 }}>
-                <Button onClick={() => openEdit(drug)} style={{ background: "green", color: "#fff", border: "none" }}>
-                  qo‘shish
-                </Button>
-                <Button danger onClick={() => handleDelete(drug)}>
-                  <DeleteOutlined />
-                </Button>
+      {Object.entries(groupedData).map(([category, items]) => {
+        const isExpanded = expandedCategories[category];
+        const visibleItems = isExpanded ? items : items.slice(0, 3);
+
+        return (
+          <Card
+            key={category}
+            title={category}
+            bodyStyle={{ padding: 0 }}
+            headStyle={{ padding: 0 }}
+            style={{ marginBottom: 20, background: "#f5f5f5", border: "none", padding: 0 }}
+            extra={
+              <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
+                <PlusCircleOutlined /> Yangi dori yaratish
+              </Button>
+            }
+          >
+            {visibleItems.map(drug => (
+              <div
+                key={drug.id}
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  padding: "10px 15px",
+                  marginBottom: 10,
+                  borderRadius: 10,
+                  background: "#fff",
+                }}
+              >
+                <span>#{drug.name}</span>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <Button onClick={() => openEdit(drug)} style={{ background: "green", color: "#fff", border: "none" }}>
+                    qo‘shish
+                  </Button>
+                  <Button danger onClick={() => handleDelete(drug)}>
+                    <DeleteOutlined />
+                  </Button>
+                </div>
               </div>
-            </div>
-          ))}
-        </Card>
-      ))}
+            ))}
+
+            {items.length > 3 && (
+              <Button
+                onClick={() => toggleCategory(category)}
+                style={{
+                  fontWeight: "bold",
+                  marginTop: 10,
+                  color: "#D93D40",
+                  background: "transparent",
+                  width: "100%",
+                  border: "1px solid #D93D40",
+                }}
+              >
+                {isExpanded ? "Yashirish" : "Yana ko‘rish"}
+              </Button>
+            )}
+          </Card>
+        );
+      })}
 
       <Modal
         open={open}

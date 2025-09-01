@@ -20,6 +20,13 @@
     display: block !important;
     background-color: #D93D40;
   }
+  
+  .layout-mobile {
+    display: block !important;
+  }
+  .toolbar {
+    display: none !important;
+  }
   .mobile-header-content {
     display: flex;
     justify-content: space-between;
