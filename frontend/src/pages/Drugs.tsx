@@ -317,6 +317,9 @@ export default function Drugs() {
               <Select.Option value="Kapsulalar">Kapsula</Select.Option>
               <Select.Option value="Siroplar">Sirop</Select.Option>
               <Select.Option value="Svichalar">Svicha</Select.Option>
+              <Select.Option value="Tomchilar">Tomchi</Select.Option>
+              <Select.Option value="Parashok">Parashok</Select.Option>
+
               <Select.Option value="Boshqalar">Boshqa</Select.Option>
             </Select>
           </Form.Item>
