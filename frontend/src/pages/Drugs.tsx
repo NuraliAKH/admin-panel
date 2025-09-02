@@ -332,9 +332,6 @@ export default function Drugs() {
           <Form.Item name="description" label="Tavsif">
             <Input.TextArea rows={3} />
           </Form.Item>
-          <Form.Item name="price" label="Narxi">
-            <InputNumber style={{ width: "100%" }} min={0} step={0.01} />
-          </Form.Item>
           <Form.Item name="type" label="Turi">
             <Select placeholder="Dori turini tanlang">
               <Select.Option value="Tabletkalar">Tabletka</Select.Option>
@@ -361,6 +358,7 @@ export default function Drugs() {
               fileList={fileList}
               onChange={({ fileList }) => setFileList(fileList)}
               beforeUpload={() => false}
+              listType="picture"
               multiple
             >
               <Button icon={<UploadOutlined />}>Yuklash</Button>
