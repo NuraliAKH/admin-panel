@@ -16,6 +16,17 @@ type FormValues = {
   images?: UploadFile[];
 };
 
+const drugCategories = [
+  { value: "Tabletkalar", label: "Tabletka" },
+  { value: "Kapsulalar", label: "Kapsula" },
+  { value: "Siroplar", label: "Sirop" },
+  { value: "Svichalar", label: "Svicha" },
+  { value: "Tomchilar", label: "Tomchi" },
+  { value: "Parashok", label: "Parashok" },
+  { value: "Mazlar", label: "Maz" },
+  { value: "Boshqalar", label: "Boshqa" },
+];
+
 export default function Drugs() {
   const API_URL = import.meta.env.VITE_API_URL ?? "http://localhost:3000/api";
 
@@ -57,13 +68,15 @@ export default function Drugs() {
     fetchData();
   }, []);
 
-  const openCreate = () => {
+  const openCreate = (type?: string) => {
     setEditing(null);
     setFileList([]);
     form.resetFields();
+    if (type) {
+      form.setFieldsValue({ type });
+    }
     setOpen(true);
   };
-
   const openEdit = (record: Drug) => {
     setEditing(record);
     setFileList(
@@ -228,12 +241,10 @@ export default function Drugs() {
         <div>
           {" "}
           <p style={{ textAlign: "center", color: "red" }}>Hech qanday dori topilmadi</p>
-          <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
-            <PlusCircleOutlined /> Yangi dori yaratish
-          </Button>
         </div>
       )}
-      {Object.entries(groupedData).map(([category, items]) => {
+      {drugCategories.map(({ value: category, label }) => {
+        const items = groupedData[category] ?? [];
         const isExpanded = expandedCategories[category];
         const visibleItems = isExpanded ? items : items.slice(0, 3);
 
@@ -245,50 +256,63 @@ export default function Drugs() {
             headStyle={{ padding: 0 }}
             style={{ marginBottom: 20, background: "#f5f5f5", border: "none", padding: 0 }}
             extra={
-              <Button type="primary" style={{ background: "#D93D40", border: "none" }} onClick={openCreate}>
+              <Button
+                type="primary"
+                style={{ background: "#D93D40", border: "none" }}
+                onClick={() => openCreate(category)}
+              >
                 <PlusCircleOutlined /> Yangi dori yaratish
               </Button>
             }
           >
-            {visibleItems.map(drug => (
-              <div
-                key={drug.id}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  padding: "10px 15px",
-                  marginBottom: 10,
-                  borderRadius: 10,
-                  background: "#fff",
-                }}
-              >
-                <span>#{drug.name}</span>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <Button onClick={() => openEdit(drug)} style={{ background: "green", color: "#fff", border: "none" }}>
-                    qo‘shish
-                  </Button>
-                  <Button danger onClick={() => handleDelete(drug)}>
-                    <DeleteOutlined />
-                  </Button>
-                </div>
-              </div>
-            ))}
+            {items.length === 0 ? (
+              <p style={{ textAlign: "center", color: "red", padding: "10px 0" }}>Hech qanday dori topilmadi</p>
+            ) : (
+              <>
+                {visibleItems.map(drug => (
+                  <div
+                    key={drug.id}
+                    style={{
+                      display: "flex",
+                      justifyContent: "space-between",
+                      alignItems: "center",
+                      padding: "10px 15px",
+                      marginBottom: 10,
+                      borderRadius: 10,
+                      background: "#fff",
+                    }}
+                  >
+                    <span>#{drug.name}</span>
+                    <div style={{ display: "flex", gap: 8 }}>
+                      <Button
+                        onClick={() => openEdit(drug)}
+                        style={{ background: "green", color: "#fff", border: "none" }}
+                      >
+                        qo‘shish
+                      </Button>
+                      <Button danger onClick={() => handleDelete(drug)}>
+                        <DeleteOutlined />
+                      </Button>
+                    </div>
+                  </div>
+                ))}
 
-            {items.length > 3 && (
-              <Button
-                onClick={() => toggleCategory(category)}
-                style={{
-                  fontWeight: "bold",
-                  marginTop: 10,
-                  color: "#D93D40",
-                  background: "transparent",
-                  width: "100%",
-                  border: "1px solid #D93D40",
-                }}
-              >
-                {isExpanded ? "Yashirish" : "Yana ko‘rish"}
-              </Button>
+                {items.length > 3 && (
+                  <Button
+                    onClick={() => toggleCategory(category)}
+                    style={{
+                      fontWeight: "bold",
+                      marginTop: 10,
+                      color: "#D93D40",
+                      background: "transparent",
+                      width: "100%",
+                      border: "1px solid #D93D40",
+                    }}
+                  >
+                    {isExpanded ? "Yashirish" : "Yana ko‘rish"}
+                  </Button>
+                )}
+              </>
             )}
           </Card>
         );
@@ -319,7 +343,7 @@ export default function Drugs() {
               <Select.Option value="Svichalar">Svicha</Select.Option>
               <Select.Option value="Tomchilar">Tomchi</Select.Option>
               <Select.Option value="Parashok">Parashok</Select.Option>
-
+              <Select.Option value="Mazlar">Maz</Select.Option>
               <Select.Option value="Boshqalar">Boshqa</Select.Option>
             </Select>
           </Form.Item>
